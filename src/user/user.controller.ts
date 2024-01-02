@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
+import { CreateUserDTO } from './dtos/CreateUserDTO';
+import { UpdateUserDTO } from './dtos/UpdateUserDTO';
+import { UpdatePartialUserDTO } from './dtos/UpdatePartialUserDTO';
 
 interface IUser {
   id: number;
@@ -13,7 +16,7 @@ export class UserController {
   private user: IUser[] = []
 
   @Post()
-  async create(@Body() body): Promise<unknown>{
+  async create(@Body() body: CreateUserDTO ): Promise<unknown>{
     const user = body
 
     this.user.push({
@@ -30,23 +33,19 @@ export class UserController {
   }
 
   @Get(':id')
-  async read(@Param() params){
-    const user = this.user.find(user  => user.id === +params.id)
+  async read(@Param("id", ParseIntPipe) id: number){
+    const user = this.user.find(user  => user.id === id)
 
     return user ? user : null
   }
 
   @Put(":id")
-  async update(@Body() body, @Param() params){
-    const id = params.id;
-
-    const user = this.user.find(user => user.id === +id);
+  async update(@Body() { name, email}: UpdateUserDTO, @Param("id", ParseIntPipe) id: number){
+    const user = this.user.find(user => user.id === id);
 
     if(!user) return { message: "User not found"}
 
     const indexOfUser = this.user.indexOf(user);
-
-    const { name, email } = body;
 
     if(!name) return { message: "name is required" }
 
@@ -56,21 +55,15 @@ export class UserController {
     this.user[indexOfUser].email = email
 
     return this.user[indexOfUser]
-
   }
 
   @Patch(":id")
-  async updatePartial(@Body() body, @Param() params){
-
-    const id = params.id;
-
+  async updatePartial(@Body() { name, email }: UpdatePartialUserDTO, @Param("id", ParseIntPipe) id: number){
     const user = this.user.find(user => user.id === +id);
 
     if(!user) return { message: "User not found"}
 
     const indexOfUser = this.user.indexOf(user);
-
-    const { name, email } = body;
 
     this.user[indexOfUser].name = name ?? this.user[indexOfUser].name;
     this.user[indexOfUser].email = email ?? this.user[indexOfUser].email;
@@ -80,10 +73,10 @@ export class UserController {
   }
 
   @Delete(":id")
-  async delete(@Param() { id } ){
-    if(!id || typeof id !== "string") return { message: "ID is missing"}
+  async delete(@Param("id", ParseIntPipe) id: number ){
+    if(!id || typeof id !== "number") return { message: "ID is missing"}
 
-    const user = this.user.find(user => user.id === +id);
+    const user = this.user.find(user => user.id === id);
 
     const indexOfUser = this.user.indexOf(user);
 
