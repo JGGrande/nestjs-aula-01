@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put } 
 import { CreateUserDTO } from './dtos/CreateUserDTO';
 import { UpdateUserDTO } from './dtos/UpdateUserDTO';
 import { UpdatePartialUserDTO } from './dtos/UpdatePartialUserDTO';
+import { UserService } from './user.service';
 
 interface IUser {
   id: number;
@@ -13,76 +14,38 @@ interface IUser {
 @Controller('users')
 export class UserController {
 
+  constructor(private readonly userService: UserService){}
+
   private user: IUser[] = []
 
   @Post()
-  async create(@Body() body: CreateUserDTO ): Promise<unknown>{
-    const user = body
-
-    this.user.push({
-      id: this.user.length + 1,
-      ...user
-    });
-
-    return user
+  async create(@Body() { email, name, password }: CreateUserDTO ){
+    return this.userService.create({ email, name, password });
   }
 
   @Get()
   async findAll(){
-    return this.user
+    return this.userService.findAll();
   }
 
   @Get(':id')
   async read(@Param("id", ParseIntPipe) id: number){
-    const user = this.user.find(user  => user.id === id)
-
-    return user ? user : null
+    return this.userService.findById(id);
   }
 
   @Put(":id")
-  async update(@Body() { name, email}: UpdateUserDTO, @Param("id", ParseIntPipe) id: number){
-    const user = this.user.find(user => user.id === id);
-
-    if(!user) return { message: "User not found"}
-
-    const indexOfUser = this.user.indexOf(user);
-
-    if(!name) return { message: "name is required" }
-
-    if(!email) return { message: "email is required" }
-
-    this.user[indexOfUser].name = name
-    this.user[indexOfUser].email = email
-
-    return this.user[indexOfUser]
+  async update(@Body() { name, email, password }: UpdateUserDTO, @Param("id", ParseIntPipe) id: number){
+    return this.userService.update(id, { name, email, password})
   }
 
   @Patch(":id")
-  async updatePartial(@Body() { name, email }: UpdatePartialUserDTO, @Param("id", ParseIntPipe) id: number){
-    const user = this.user.find(user => user.id === +id);
-
-    if(!user) return { message: "User not found"}
-
-    const indexOfUser = this.user.indexOf(user);
-
-    this.user[indexOfUser].name = name ?? this.user[indexOfUser].name;
-    this.user[indexOfUser].email = email ?? this.user[indexOfUser].email;
-
-    return this.user[indexOfUser]
-
+  async updatePartial(@Body() { name, email, password }: UpdatePartialUserDTO, @Param("id", ParseIntPipe) id: number){
+    return this.userService.updatePartial(id, { name, email, password });
   }
 
   @Delete(":id")
   async delete(@Param("id", ParseIntPipe) id: number ){
-    if(!id || typeof id !== "number") return { message: "ID is missing"}
-
-    const user = this.user.find(user => user.id === id);
-
-    const indexOfUser = this.user.indexOf(user);
-
-    this.user.splice(indexOfUser, 1);
-
-    return { message: "User deleted"}
+    return this.userService.delete(id);
   }
 
 }
