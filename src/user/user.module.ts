@@ -3,9 +3,11 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { DatabaseModule } from 'src/database/prisma.module';
 import { CheckIdMiddleware } from 'src/middlewares/CheckId.middleware';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [ DatabaseModule ],
+  imports: [ DatabaseModule, AuthModule ],
   controllers: [ UserController ],
   providers: [ UserService ]
 })

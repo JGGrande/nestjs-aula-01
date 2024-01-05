@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Patch, Post, Put, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/CreateUserDTO';
 import { UpdateUserDTO } from './dtos/UpdateUserDTO';
 import { UpdatePartialUserDTO } from './dtos/UpdatePartialUserDTO';
 import { UserService } from './user.service';
 import { LogInterceptor } from '../interceptors/log.interceptor';
 import { ParamId } from 'src/decorators/ParamId.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { User } from 'src/decorators/User.decorator';
 
 interface IUser {
   id: number;
@@ -24,13 +26,16 @@ export class UserController {
     return this.userService.create({ email, name, password });
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(){
     return this.userService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async read(@ParamId() id: number){
+  async read(@User("id") id: number){
+
     return this.userService.findById(id);
   }
 

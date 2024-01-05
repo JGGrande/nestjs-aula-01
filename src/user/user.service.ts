@@ -3,6 +3,7 @@ import { CreateUserDTO } from "./dtos/CreateUserDTO";
 import { PrismaService } from "src/database/prisma.service";
 import { UpdateUserDTO } from "./dtos/UpdateUserDTO";
 import { UpdatePartialUserDTO } from "./dtos/UpdatePartialUserDTO";
+import { hash } from "bcryptjs";
 
 @Injectable()
 export class UserService {
@@ -15,12 +16,13 @@ export class UserService {
 
     if(userAlreadryExits) throw new ConflictException("User already exists");
 
+    const passwordHashed = await hash(password, 8)
 
     const user = await this.prisma.user.create({
       data: {
         email,
         name,
-        password
+        password: passwordHashed
       }
     });
 
@@ -54,11 +56,13 @@ export class UserService {
       throw new NotFoundException("ID não encontrado")
     }
 
+    const passwordHashed = await hash(password, 8)
+
     const user = await this.prisma.user.update({
       data: {
         email,
         name,
-        password
+        password: passwordHashed
       },
       where: {
         id
@@ -71,6 +75,11 @@ export class UserService {
   async updatePartial(id: number, { email, name, password }: UpdatePartialUserDTO){
     if(!( await this.exitsId(id) ) ){
       throw new NotFoundException("ID não encontrado")
+    }
+
+    if(password){
+      const passwordHashed = await hash(password, 8)
+      password = passwordHashed
     }
 
     const user = await this.prisma.user.update({
