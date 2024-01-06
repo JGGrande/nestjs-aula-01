@@ -1,7 +1,12 @@
-declare namespace Express {
-  export interface Request {
+import { Role } from "src/enums/Role.enum";
+
+declare global {
+  namespace Express {
+    export interface Request {
       user?: {
-         id: number;
+        id: number;
+        role: Role;
       }
+    }
   }
 }

@@ -19,6 +19,7 @@ export class AuthService {
     return this.JWTService.sign({
       id: user.id,
       name: user.name,
+      role: user.role
     }, {
       expiresIn: "7d",
       subject: String(user.id),
