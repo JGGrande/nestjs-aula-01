@@ -10,7 +10,7 @@ export class UserService {
 
   constructor(private readonly prisma: PrismaService) { }
 
-  async create({ email, name, password }: CreateUserDTO){
+  async create({ email, name, password, role }: CreateUserDTO){
 
     const userAlreadryExits = await this.findByEmail(email);
 
@@ -22,7 +22,8 @@ export class UserService {
       data: {
         email,
         name,
-        password: passwordHashed
+        password: passwordHashed,
+        role
       }
     });
 
@@ -50,7 +51,7 @@ export class UserService {
     return users;
   }
 
-  async update(id: number, { email, name, password }:UpdateUserDTO){
+  async update(id: number, { email, name, password, role }:UpdateUserDTO){
 
     if(!( await this.exitsId(id) ) ){
       throw new NotFoundException("ID não encontrado")
@@ -62,7 +63,8 @@ export class UserService {
       data: {
         email,
         name,
-        password: passwordHashed
+        password: passwordHashed,
+        role
       },
       where: {
         id
@@ -72,7 +74,7 @@ export class UserService {
     return user;
   }
 
-  async updatePartial(id: number, { email, name, password }: UpdatePartialUserDTO){
+  async updatePartial(id: number, { email, name, password, role }: UpdatePartialUserDTO){
     if(!( await this.exitsId(id) ) ){
       throw new NotFoundException("ID não encontrado")
     }
@@ -86,7 +88,8 @@ export class UserService {
       data: {
         email,
         name,
-        password
+        password,
+        role
       },
       where: {
         id

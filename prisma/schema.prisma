@@ -12,8 +12,14 @@ model User {
   name      String   @db.VarChar(63)
   email     String   @unique @db.VarChar(150)
   password  String   @db.VarChar(100)
+  role      Role     @default(User)
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   @@map("user")
+}
+
+enum Role {
+  User
+  Admin
 }
