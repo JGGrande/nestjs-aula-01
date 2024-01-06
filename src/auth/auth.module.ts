@@ -7,7 +7,7 @@ import { DatabaseModule } from "src/database/prisma.module";
 @Module({
   imports: [
     JwtModule.register({
-      secret: "Grande"
+      secret: process.env.JWT_SECRET,
     }),
     DatabaseModule
   ],

@@ -2,3 +2,4 @@ node_modules
 dist
 covarege
 .editorconfig
+.env
