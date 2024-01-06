@@ -27,6 +27,9 @@ export class UserService {
       }
     });
 
+    delete user.password
+    delete user.role
+
     return user;
   }
 
@@ -34,6 +37,9 @@ export class UserService {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if(!user) return null;
+
+    delete user.password
+    delete user.role
 
     return user
   }
@@ -43,11 +49,19 @@ export class UserService {
 
     if(!user) return null;
 
+    delete user.password
+    delete user.role
+
     return user
   }
 
   async findAll(){
-    const users = await this.prisma.user.findMany();
+    const users = (await this.prisma.user.findMany())
+    .map( user => {
+      delete user.password
+      delete user.role
+      return user
+    })
     return users;
   }
 
@@ -70,6 +84,9 @@ export class UserService {
         id
       }
     });
+
+    delete user.password
+    delete user.role
 
     return user;
   }
@@ -95,6 +112,9 @@ export class UserService {
         id
       }
     });
+
+    delete user.password
+    delete user.role
 
     return user;
   }
