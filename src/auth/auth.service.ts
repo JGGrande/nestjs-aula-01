@@ -1,11 +1,9 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { AuthLoginDTO } from "./dtos/AuthLoginDTO";
-import { PrismaService } from "src/database/prisma.service";
 import { compare, hash } from "bcryptjs";
 import { AuthLoginForgetDTO } from "./dtos/AuthLoginForgetDTO";
 import { AuthLoginResetDTO } from "./dtos/AuthLoginResetDTO";
-import { User } from "@prisma/client";
 import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
@@ -13,11 +11,10 @@ export class AuthService {
 
   constructor(
     private readonly JWTService: JwtService,
-    private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
   ){}
 
-  async createToken(user: User){
+  async createToken(user: unknown){
     return this.JWTService.sign({
       id: user.id,
       name: user.name,
