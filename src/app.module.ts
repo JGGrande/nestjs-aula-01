@@ -9,8 +9,8 @@ import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    ThrottlerModule.forRoot([{
+    ConfigModule.forRoot(), //Habilita as ENV
+    ThrottlerModule.forRoot([{ //Rate Limiter
       ttl: 6000,
       limit: 20
     }]),
