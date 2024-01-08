@@ -54,10 +54,13 @@ export class AuthService {
 
     if(!passwordIsValid) throw new UnauthorizedException("Email or password invalid.");
 
+
     delete user.password
-    delete user.role
 
     const token = await this.createToken(user);
+
+    delete user.role
+
     return {
       user,
       token

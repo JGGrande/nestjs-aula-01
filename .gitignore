@@ -3,3 +3,4 @@ dist
 covarege
 .editorconfig
 .env
+storage/photo

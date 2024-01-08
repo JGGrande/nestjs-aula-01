@@ -24,12 +24,10 @@ export class AuthGuard implements CanActivate {
 
     try {
       const data = this.authService.verifyToken(token);
-      console.log(data);
       request.user = {
         id: +data.id,
         role: data.role
       };
-
       return true
     }catch(e){
       console.error(e);
