@@ -6,13 +6,15 @@ import { compare, hash } from "bcryptjs";
 import { AuthLoginForgetDTO } from "./dtos/AuthLoginForgetDTO";
 import { AuthLoginResetDTO } from "./dtos/AuthLoginResetDTO";
 import { User } from "@prisma/client";
+import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
 export class AuthService {
 
   constructor(
     private readonly JWTService: JwtService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly mailer: MailerService,
   ){}
 
   async createToken(user: User){
@@ -76,33 +78,62 @@ export class AuthService {
 
     if(!user) throw new UnauthorizedException("Email invalid.");
 
+    const token = this.JWTService.sign(
+      {
+        id: user.id,
+      },
+      {
+        expiresIn: "30min",
+        subject: String(user.id),
+        issuer: 'forget',
+        audience: "users"
+      }
+    )
+
+    await this.mailer.sendMail({
+      subject: "Recuperação de senha",
+      to: email,
+      template: 'forget',
+      context: {
+        name: user.name,
+        token: token
+      }
+    });
+
     return true;
   }
 
   async reset({ password, token }: AuthLoginResetDTO){
+    try{
+      const { id } = this.JWTService.verify(token, {
+        issuer: 'forget',
+        audience: 'users'
+      }) as { id: number }
 
-    const id = 1
+      const passwordHashed = await hash(password, 8)
 
-    const passwordHashed = await hash(password, 8)
+      const newUser = await this.prisma.user.update({
+        where: {
+          id
+        },
+        data : {
+          password: passwordHashed
+        }
+      });
 
-    const newUser = await this.prisma.user.update({
-      where: {
-        id
-      },
-      data : {
-        password: passwordHashed
-      }
-    });
+      delete newUser.password
 
-    delete newUser.password
+      const newToken = await this.createToken(newUser);
 
-    const newToken = await this.createToken(newUser);
+      delete newUser.role
 
-    return {
-      newUser,
-      newToken
-    };
-
+      return {
+        newUser,
+        newToken
+      };
+    }catch( error ){
+      throw new BadRequestException("Unknown error");
+    }
   }
 
 }
