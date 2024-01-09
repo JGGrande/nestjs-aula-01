@@ -2,12 +2,17 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { CheckIdMiddleware } from 'src/middlewares/CheckId.middleware';
-import { AuthGuard } from 'src/guards/auth.guard';
 import { AuthModule } from 'src/auth/auth.module';
 import { FileModule } from 'src/file/file.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './entity/user.entity';
 
 @Module({
-  imports: [ AuthModule, FileModule ],
+  imports: [
+    AuthModule,
+    FileModule,
+    TypeOrmModule.forFeature([ User ])
+  ],
   controllers: [ UserController ],
   providers: [ UserService ]
 })

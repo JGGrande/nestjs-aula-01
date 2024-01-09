@@ -5,16 +5,21 @@ import { compare, hash } from "bcryptjs";
 import { AuthLoginForgetDTO } from "./dtos/AuthLoginForgetDTO";
 import { AuthLoginResetDTO } from "./dtos/AuthLoginResetDTO";
 import { MailerService } from "@nestjs-modules/mailer";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "src/user/entity/user.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class AuthService {
 
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly JWTService: JwtService,
     private readonly mailer: MailerService,
   ){}
 
-  async createToken(user: unknown){
+  async createToken(user: User){
     return this.JWTService.sign({
       id: user.id,
       name: user.name,
@@ -41,11 +46,11 @@ export class AuthService {
 
 
   async login({ email, password }: AuthLoginDTO){
-    const user = await this.prisma.user.findFirst({
+    const user = await this.userRepository.findOne({
       where: {
         email
       }
-    });
+    })
 
     if(!user) throw new UnauthorizedException("Email or password invalid.");
 
@@ -67,11 +72,11 @@ export class AuthService {
   }
 
   async forget({ email }: AuthLoginForgetDTO){
-    const user = await this.prisma.user.findFirst({
+    const user = await this.userRepository.findOne({
       where: {
         email
       }
-    });
+    })
 
     if(!user) throw new UnauthorizedException("Email invalid.");
 
@@ -109,14 +114,10 @@ export class AuthService {
 
       const passwordHashed = await hash(password, 8)
 
-      const newUser = await this.prisma.user.update({
-        where: {
-          id
-        },
-        data : {
-          password: passwordHashed
-        }
-      });
+      const newUser = await this.userRepository.save({
+        id,
+        password: passwordHashed
+      })
 
       delete newUser.password
 
@@ -129,6 +130,7 @@ export class AuthService {
         newToken
       };
     }catch( error ){
+      console.error(error)
       throw new BadRequestException("Unknown error");
     }
   }

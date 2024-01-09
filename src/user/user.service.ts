@@ -1,14 +1,18 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateUserDTO } from "./dtos/CreateUserDTO";
 import { UpdateUserDTO } from "./dtos/UpdateUserDTO";
 import { UpdatePartialUserDTO } from "./dtos/UpdatePartialUserDTO";
 import { hash } from "bcryptjs";
+import { Repository } from "typeorm";
+import { User } from "./entity/user.entity";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class UserService {
 
   constructor(
-
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
   ) { }
 
   async create({ email, name, password, role }: CreateUserDTO){
@@ -19,14 +23,12 @@ export class UserService {
 
     const passwordHashed = await hash(password, 8)
 
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        name,
-        password: passwordHashed,
-        role
-      }
-    });
+    const user = await this.userRepository.save({
+      email,
+      name,
+      password: passwordHashed,
+      role
+    })
 
     delete user.password
     delete user.role
@@ -35,7 +37,7 @@ export class UserService {
   }
 
   async findById(id: number){
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.userRepository.findOneBy({ id });
 
     if(!user) return null;
 
@@ -46,7 +48,7 @@ export class UserService {
   }
 
   async findByEmail(email: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.userRepository.findOneBy({ email });
 
     if(!user) return null;
 
@@ -57,12 +59,8 @@ export class UserService {
   }
 
   async findAll(){
-    const users = (await this.prisma.user.findMany())
-    .map( user => {
-      delete user.password
-      delete user.role
-      return user
-    })
+    const users = await this.userRepository.find()
+
     return users;
   }
 
@@ -74,17 +72,13 @@ export class UserService {
 
     const passwordHashed = await hash(password, 8)
 
-    const user = await this.prisma.user.update({
-      data: {
-        email,
-        name,
-        password: passwordHashed,
-        role
-      },
-      where: {
-        id
-      }
-    });
+    const user = await this.userRepository.save({
+      id,
+      email,
+      password: passwordHashed,
+      name,
+      role
+    })
 
     delete user.password
     delete user.role
@@ -102,17 +96,13 @@ export class UserService {
       password = passwordHashed
     }
 
-    const user = await this.prisma.user.update({
-      data: {
-        email,
-        name,
-        password,
-        role
-      },
-      where: {
-        id
-      }
-    });
+    const user = await this.userRepository.save({
+      id,
+      email,
+      password,
+      name,
+      role
+    })
 
     delete user.password
     delete user.role
@@ -121,13 +111,17 @@ export class UserService {
   }
 
   async delete(id: number){
-    await this.prisma.user.delete({ where: { id } });
+    await this.userRepository.delete( id );
   }
 
   async exitsId(id: number){
-    const user = await this.prisma.user.count({ where: { id } });
+    const userExits = await this.userRepository.exists({
+      where: {
+        id
+      }
+    });
 
-    return !!user
+    return userExits
   }
 
 }
