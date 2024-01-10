@@ -6,7 +6,7 @@ import { AuthLoginForgetDTO } from "./dtos/AuthLoginForgetDTO";
 import { AuthLoginResetDTO } from "./dtos/AuthLoginResetDTO";
 import { MailerService } from "@nestjs-modules/mailer";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/user/entity/user.entity";
+import { User } from "../user/entity/user.entity";
 import { Repository } from "typeorm";
 
 @Injectable()

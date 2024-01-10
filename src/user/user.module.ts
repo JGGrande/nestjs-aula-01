@@ -1,9 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { CheckIdMiddleware } from 'src/middlewares/CheckId.middleware';
-import { AuthModule } from 'src/auth/auth.module';
-import { FileModule } from 'src/file/file.module';
+import { CheckIdMiddleware } from '../middlewares/CheckId.middleware';
+import { AuthModule } from '../auth/auth.module';
+import { FileModule } from '../file/file.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 

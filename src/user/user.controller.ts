@@ -4,15 +4,15 @@ import { UpdateUserDTO } from './dtos/UpdateUserDTO';
 import { UpdatePartialUserDTO } from './dtos/UpdatePartialUserDTO';
 import { UserService } from './user.service';
 import { LogInterceptor } from '../interceptors/log.interceptor';
-import { ParamId } from 'src/decorators/ParamId.decorator';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { User } from 'src/decorators/User.decorator';
-import { Role } from 'src/enums/Role.enum';
-import { Roles } from 'src/decorators/Role.decorator';
-import { RoleGuard } from 'src/guards/role.guard';
+import { ParamId } from '../decorators/ParamId.decorator';
+import { AuthGuard } from '../guards/auth.guard';
+import { User } from '../decorators/User.decorator';
+import { Role } from '../enums/Role.enum';
+import { Roles } from '../decorators/Role.decorator';
+import { RoleGuard } from '../guards/role.guard';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
-import { FileService } from 'src/file/file.service';
+import { FileService } from '../file/file.service';
 
 interface IFilesFields {
   PDF: Express.Multer.File

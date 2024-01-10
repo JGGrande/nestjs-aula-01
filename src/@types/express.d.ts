@@ -1,4 +1,4 @@
-import { Role } from "src/enums/Role.enum";
+import { Role } from "../enums/Role.enum";
 
 declare global {
   namespace Express {
